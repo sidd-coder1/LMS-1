@@ -93,10 +93,44 @@ class MaintenanceLogDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MaintenanceLogSerializer
     permission_classes = [AllowAuthenticatedReadAndCreateElseAdmin]
 
-class InventoryList(generics.ListCreateAPIView):
-    queryset = Inventory.objects.all()
+from rest_framework.response import Response
+from rest_framework import status
+from django.db.models import Count, Q
+
+class InventoryList(generics.ListAPIView):
     serializer_class = InventorySerializer
     permission_classes = [IsAdminOrReadOnly]
+
+    def get_queryset(self):
+        # This method won't be used, but required by ListAPIView
+        return Inventory.objects.none()
+
+    def list(self, request, *args, **kwargs):
+        # Calculate inventory dynamically from Equipment table
+        labs = Lab.objects.all()
+        inventory_data = []
+
+        for lab in labs:
+            # Get all equipment types for this lab
+            equipment_in_lab = Equipment.objects.filter(lab=lab)
+            equipment_types = equipment_in_lab.values_list('equipment_type', flat=True).distinct()
+
+            for eq_type in equipment_types:
+                eq_of_type = equipment_in_lab.filter(equipment_type=eq_type)
+
+                inventory_data.append({
+                    'id': f"{lab.id}_{eq_type}",  # Composite key
+                    'lab': lab.id,
+                    'equipment_type': eq_type,
+                    'total_quantity': eq_of_type.count(),
+                    'working_quantity': eq_of_type.filter(status='working').count(),
+                    'not_working_quantity': eq_of_type.filter(status='not_working').count(),
+                    'under_repair_quantity': eq_of_type.filter(status='under_repair').count(),
+                })
+
+        # If no data, return empty list instead of old Inventory table data
+        serializer = self.get_serializer(inventory_data, many=True)
+        return Response(serializer.data)
 
 class InventoryDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Inventory.objects.all()

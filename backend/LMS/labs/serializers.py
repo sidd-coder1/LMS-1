@@ -32,7 +32,15 @@ class MaintenanceLogSerializer(serializers.ModelSerializer):
         model = MaintenanceLog
         fields = '__all__'
 
-class InventorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Inventory
-        fields = '__all__'
+class InventorySerializer(serializers.Serializer):
+    """
+    Dynamic Inventory Serializer - doesn't use the Inventory model directly.
+    Instead, it serializes calculated inventory data from Equipment.
+    """
+    id = serializers.CharField(read_only=True)
+    lab = serializers.IntegerField()
+    equipment_type = serializers.CharField()
+    total_quantity = serializers.IntegerField()
+    working_quantity = serializers.IntegerField()
+    not_working_quantity = serializers.IntegerField()
+    under_repair_quantity = serializers.IntegerField()
