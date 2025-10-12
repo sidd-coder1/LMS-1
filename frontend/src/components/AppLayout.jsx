@@ -14,7 +14,7 @@ const AppLayout = ({ children }) => {
   }, [mode]);
 
   return (
-    <div className="min-h-screen bg-[#1e1e1e] text-gray-100">
+    <div className={`min-h-screen ${mode === 'dark' ? 'bg-[#1e1e1e] text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
       {/* Fixed header with logo + college name + top nav */}
       <HeaderBar />
 

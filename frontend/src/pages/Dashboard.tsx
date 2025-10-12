@@ -92,13 +92,15 @@ const Dashboard: React.FC = () => {
     title: string;
     value: number;
     icon: React.ReactNode;
-    color: string; // expects one of: 'primary' | 'info' | 'success' | 'warning'
+    color: string; // expects one of: 'primary' | 'info' | 'success' | 'warning' | 'error' | 'secondary'
   }> = ({ title, value, icon, color }) => {
     const gradients: Record<string, string> = {
       primary: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
       info: 'linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)',
       success: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)',
       warning: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
+      error: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+      secondary: 'linear-gradient(135deg, #f97316 0%, #c2410c 100%)',
     };
     const bg = gradients[color] || gradients.primary;
 
@@ -216,7 +218,7 @@ const Dashboard: React.FC = () => {
             title="Not Working Equipment"
             value={stats.notWorkingEquipment}
             icon={<PCIcon />}
-            color="warning"
+            color="error"
           />
         </Box>
         <Box>
@@ -232,7 +234,7 @@ const Dashboard: React.FC = () => {
             title="Pending Maintenance"
             value={stats.pendingMaintenance}
             icon={<MaintenanceIcon />}
-            color="warning"
+            color="secondary"
           />
         </Box>
       </Box>

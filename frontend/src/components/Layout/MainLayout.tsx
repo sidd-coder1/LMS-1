@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Box, Toolbar, Drawer, useTheme, useMediaQuery, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Button, Collapse } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -45,6 +45,26 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     { text: 'Inventory', icon: <InventoryIcon />, path: '/inventory' },
   ];
 
+  const mainContentStyles = useMemo(() => ({
+    flexGrow: 1,
+    px: { xs: 2, sm: 3, md: 4 },
+    py: { xs: 2, sm: 3 },
+    width: '100%',
+    minHeight: '100vh',
+    position: 'relative' as const,
+    backgroundColor: theme.palette.background.default,
+    backgroundImage: theme.palette.mode === 'light'
+      ? `radial-gradient(circle at 20% 10%, rgba(25,118,210,0.06), transparent 30%),
+         radial-gradient(circle at 80% 0%, rgba(2,136,209,0.06), transparent 28%),
+         radial-gradient(circle at 10% 90%, rgba(66,165,245,0.06), transparent 30%),
+         linear-gradient(180deg, #f7fafc 0%, #eef2f7 100%)`
+      : `radial-gradient(circle at 20% 10%, rgba(25,118,210,0.14), transparent 30%),
+         radial-gradient(circle at 80% 0%, rgba(2,136,209,0.14), transparent 28%),
+         radial-gradient(circle at 10% 90%, rgba(66,165,245,0.14), transparent 30%),
+         linear-gradient(180deg, #0b0c10 0%, #12131a 100%)`,
+    backgroundAttachment: 'fixed',
+  }), [theme.palette.mode, theme.palette.background.default]);
+
   return (
     <Box sx={{ display: 'flex' }}>
       <Header onMenuClick={handleDrawerToggle} />
@@ -55,31 +75,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       {/* Main content */}
       <Box
         component="main"
-        sx={{
-          flexGrow: 1,
-          px: { xs: 2, sm: 3, md: 4 },
-          py: { xs: 2, sm: 3 },
-          width: '100%',
-          minHeight: '100vh',
-          position: 'relative',
-          // Base color as fallback
-          backgroundColor: 'background.default',
-          // Layered gradients (light/dark aware)
-          backgroundImage: (theme) => theme.palette.mode === 'light'
-            ? `
-              radial-gradient( circle at 20% 10%, rgba(25,118,210,0.06), transparent 30% ),
-              radial-gradient( circle at 80% 0%, rgba(2,136,209,0.06), transparent 28% ),
-              radial-gradient( circle at 10% 90%, rgba(66,165,245,0.06), transparent 30% ),
-              linear-gradient(180deg, #f7fafc 0%, #eef2f7 100%)
-            `
-            : `
-              radial-gradient( circle at 20% 10%, rgba(25,118,210,0.14), transparent 30% ),
-              radial-gradient( circle at 80% 0%, rgba(2,136,209,0.14), transparent 28% ),
-              radial-gradient( circle at 10% 90%, rgba(66,165,245,0.14), transparent 30% ),
-              linear-gradient(180deg, #0b0c10 0%, #12131a 100%)
-            `,
-          backgroundAttachment: 'fixed',
-        }}
+        sx={mainContentStyles}
       >
         <Toolbar />
         {children}
