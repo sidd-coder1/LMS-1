@@ -1,7 +1,8 @@
 from django.urls import path
-from . import views
+from . import views, include
 
 urlpatterns = [
+    path('', include('labs.urls')),
     path('users/', views.UserList.as_view(), name='user-list'),
     path('users/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
     path('labs/', views.LabList.as_view(), name='lab-list'),
@@ -17,4 +18,6 @@ urlpatterns = [
     path('maintenance/<int:pk>/', views.MaintenanceLogDetail.as_view(), name='maintenance-log-detail'),
     path('inventory/', views.InventoryList.as_view(), name='inventory-list'),
     path('inventory/<int:pk>/', views.InventoryDetail.as_view(), name='inventory-detail'),
+    path('redirect-after-login/', views.redirect_after_login, name='redirect-after-login'),
+
 ]

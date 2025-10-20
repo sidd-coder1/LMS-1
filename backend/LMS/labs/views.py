@@ -74,19 +74,29 @@ class EquipmentDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminOrReadOnly]
 
 class MaintenanceLogList(generics.ListCreateAPIView):
-    queryset = MaintenanceLog.objects.all()
     serializer_class = MaintenanceLogSerializer
     permission_classes = [AllowAuthenticatedReadAndCreateElseAdmin]
 
+    def get_queryset(self):
+        user = self.request.user
+        # Students can only see their own maintenance logs
+        if user.role == 'student':
+            return MaintenanceLog.objects.filter(reported_by=user)
+        # Admins can see all
+        return MaintenanceLog.objects.all()
+
     def perform_create(self, serializer):
-        # Ensure students can only create complaints; set controlled fields
+        equipment = serializer.validated_data.get('equipment')
+        lab = equipment.lab if equipment else None
         serializer.save(
             reported_by=self.request.user,
+            lab=lab,   # 👈 auto-assign lab here
             status='pending',
             status_after=None,
             fixed_by=None,
             fixed_on=None,
         )
+
 
 class MaintenanceLogDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = MaintenanceLog.objects.all()
@@ -96,6 +106,20 @@ class MaintenanceLogDetail(generics.RetrieveUpdateDestroyAPIView):
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Count, Q
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def redirect_after_login(request):
+    user = request.user
+    if user.role == 'student':
+        return Response({'redirect_to': '/api/maintenance/'})
+    elif user.role == 'admin':
+        return Response({'redirect_to': '/api/inventory/'})
+    else:
+        return Response({'redirect_to': '/api/'})
+
 
 class InventoryList(generics.ListAPIView):
     serializer_class = InventorySerializer

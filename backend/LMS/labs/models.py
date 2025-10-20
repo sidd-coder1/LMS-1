@@ -120,6 +120,8 @@ class MaintenanceLog(models.Model):
     )
 
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name="maintenance_logs")
+    lab = models.ForeignKey('Lab', on_delete=models.CASCADE, related_name="maintenance_logs", null=True, blank=True)  # 👈 added field
+
     reported_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="reported_issues")
     fixed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="fixed_issues")
     issue_description = models.TextField(blank=True, null=True)
@@ -130,9 +132,15 @@ class MaintenanceLog(models.Model):
     fixed_on = models.DateTimeField(blank=True, null=True)
     remarks = models.TextField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        # Automatically set lab based on the equipment selected
+        if not self.lab and self.equipment:
+            self.lab = self.equipment.lab
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"Issue on {self.equipment} - {self.status}"
-
+    
 
 # ------------------------------
 # 7) Inventory Table (for Dashboard)

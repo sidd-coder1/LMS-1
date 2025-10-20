@@ -155,6 +155,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_REDIRECT_URL = '/redirect-after-login/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
